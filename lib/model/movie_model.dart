@@ -62,24 +62,24 @@ class Results {
       this.firstAirDate});
 
   Results.fromJson(Map<String, dynamic> json) {
-    releaseDate = json['release_date'];
+    releaseDate = json['release_date'] ?? '';
     title = json['title'] ?? '';
-    adult = json['adult'];
+
     backdropPath = json['backdrop_path'];
     // genreIds = json['genre_ids'].cast<int>();
-    id = json['id'];
-    originalLanguage = json['original_language'];
-    originalTitle = json['original_title'];
-    posterPath = json['poster_path'];
-    video = json['video'];
-    voteAverage = json['vote_average'];
-    voteCount = json['vote_count'];
-    overview = json['overview'];
-    popularity = json['popularity'];
-    mediaType = json['media_type'];
-    originalName = json['original_name'];
+    id = json['id'] ?? 0;
+    originalLanguage = json['original_language'] ?? '';
+    originalTitle = json['original_title'] ?? "";
+    posterPath = json['poster_path'] ?? "";
+
+    voteAverage = json['vote_average'] ?? 0;
+    voteCount = json['vote_count'] ?? 0;
+    overview = json['overview'] ?? 0;
+    popularity = json['popularity'] ?? 0;
+    mediaType = json['media_type'] ?? "";
+    originalName = json['original_name'] ?? "";
     //originCountry = json['origin_country'].cast<String>();
-    name = json['name'];
-    firstAirDate = json['first_air_date'];
+    name = json['name'] ?? "";
+    firstAirDate = json['first_air_date'] ?? "";
   }
 }

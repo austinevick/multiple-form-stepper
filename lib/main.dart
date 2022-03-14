@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:movie_ui_demo/screen/home_screen.dart';
 import 'package:movie_ui_demo/screen/landing_screen.dart';
 
 import 'screen/signup_screen.dart';
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const LandingScreen(),
+      home: const HomeScreen(),
     );
   }
 }

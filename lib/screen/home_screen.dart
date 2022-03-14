@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
@@ -31,15 +32,32 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    ini();
+    getData().asStream().listen((event) {});
+
     super.initState();
   }
 
-  ini() async {
+  Future<void> init() async {
     Future<List<Results>> movies = getTrendingMovies();
     await movies.then((value) => setState(() => this.movies = value));
   }
 
+  Future<void> getData() async {
+    try {
+      await init();
+    } on SocketException catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        duration: Duration(days: 3),
+        content: const Text('No internet connection'),
+        action:
+            SnackBarAction(label: 'RETRY', onPressed: () async => await init()),
+      ));
+    } catch (e) {
+      print('Unknown error $e');
+    }
+  }
+
+  bool isLoading = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,59 +68,79 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         body: movies.isEmpty
-            ? const Center()
-            : ListView.builder(
-                itemCount: movies.length,
-                itemBuilder: (context, i) {
-                  final m = movies[i];
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(PageRouteBuilder(
-                        reverseTransitionDuration: const Duration(seconds: 1),
-                        transitionDuration: const Duration(seconds: 1),
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            FadeTransition(
-                          opacity: animation,
-                          child: MovieDetailScreen(movies: m),
-                        ),
-                      ));
-                    },
-                    child: Hero(
-                      tag: m.id.toString(),
-                      child: SizedBox(
-                          height: 250,
-                          width: 200,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 25, right: 25, top: 8, bottom: 8),
-                            child: Container(
-                              child: Padding(
-                                padding: const EdgeInsets.all(14.0),
-                                child: Column(
-                                  children: [
-                                    const Spacer(),
-                                    Text(
-                                      m.title!,
-                                      style: const TextStyle(
-                                          color: Colors.white, fontSize: 17),
-                                    )
-                                  ],
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Something went wrong, check your network and try again',
+                        textAlign: TextAlign.center,
+                      ),
+                      TextButton(
+                          onPressed: () async => await getData(),
+                          child: const Text('TRY AGAIN')),
+                    ],
+                  ),
+                ),
+              )
+            : RefreshIndicator(
+                onRefresh: () async => await init(),
+                child: ListView.builder(
+                  itemCount: movies.length,
+                  itemBuilder: (context, i) {
+                    final m = movies[i];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(PageRouteBuilder(
+                          reverseTransitionDuration: const Duration(seconds: 1),
+                          transitionDuration: const Duration(seconds: 1),
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                                  FadeTransition(
+                            opacity: animation,
+                            child: MovieDetailScreen(movies: m),
+                          ),
+                        ));
+                      },
+                      child: Hero(
+                        tag: m.id.toString(),
+                        child: SizedBox(
+                            height: 250,
+                            width: 200,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 25, right: 25, top: 8, bottom: 8),
+                              child: Container(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(14.0),
+                                  child: Column(
+                                    children: [
+                                      const Spacer(),
+                                      Text(
+                                        m.title!,
+                                        style: const TextStyle(
+                                            color: Colors.white, fontSize: 17),
+                                      )
+                                    ],
+                                  ),
                                 ),
+                                decoration: BoxDecoration(
+                                    color: Colors.blueGrey,
+                                    borderRadius: BorderRadius.circular(8),
+                                    image: DecorationImage(
+                                        colorFilter: const ColorFilter.mode(
+                                            Colors.black54, BlendMode.darken),
+                                        fit: BoxFit.cover,
+                                        image: NetworkImage(
+                                            BASE_IMAGE_URL + m.posterPath!))),
                               ),
-                              decoration: BoxDecoration(
-                                  color: Colors.blueGrey,
-                                  borderRadius: BorderRadius.circular(8),
-                                  image: DecorationImage(
-                                      colorFilter: const ColorFilter.mode(
-                                          Colors.black54, BlendMode.darken),
-                                      fit: BoxFit.cover,
-                                      image: NetworkImage(
-                                          BASE_IMAGE_URL + m.posterPath!))),
-                            ),
-                          )),
-                    ),
-                  );
-                },
+                            )),
+                      ),
+                    );
+                  },
+                ),
               ));
   }
 }
