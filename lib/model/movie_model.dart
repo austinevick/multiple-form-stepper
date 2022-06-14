@@ -72,7 +72,7 @@ class Results {
     originalTitle = json['original_title'] ?? "";
     posterPath = json['poster_path'] ?? "";
 
-    voteAverage = json['vote_average'] ?? 0;
+    // voteAverage = json['vote_average'] ?? 0;
     voteCount = json['vote_count'] ?? 0;
     overview = json['overview'] ?? 0;
     popularity = json['popularity'] ?? 0;
